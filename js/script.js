@@ -75,6 +75,29 @@ totalCostLabel.style.display = "none";
 activitiesFieldsetElement.appendChild(totalCostLabel);
 
 
+const paymentSelectElement = document.getElementById("payment");
+
+const paymentSelectPaymentOption = document.querySelector("#payment option[value='select method']");
+
+// const paymentCreditCardOption = document.querySelector("#payment option[value='credit card']");
+
+// const paymentPaypalOption = document.querySelector("#payment option[value='paypal']");
+
+// const paymentBitcoinOption = document.querySelector("#payment option[value='bitcoin']");
+
+paymentSelectPaymentOption.hidden = true;
+
+const creditCardDiv = document.querySelector("div.credit-card");
+
+const payPalDiv = document.querySelector("div.paypal");
+
+const bitcoinDiv = document.querySelector("div.bitcoin");
+
+payPalDiv.style.display = "none";
+
+bitcoinDiv.style.display = "none";
+
+
 designSelectElement.addEventListener('input', (event) => {
 
    if (event.target.value === "js puns")
@@ -114,17 +137,15 @@ designSelectElement.addEventListener('input', (event) => {
 });
 
 
-var selectedTime = "";
 
-var wasChecked = false;
 
 activitiesFieldsetElement.addEventListener('change', (event) => {
 
    const activitiesCheckBoxes = document.querySelectorAll(".activities input");
 
-   selectedTime = event.target.getAttribute("data-day-and-time");
+   const selectedTime = event.target.getAttribute("data-day-and-time");
 
-   wasChecked = event.target.checked;
+   const wasChecked = event.target.checked;
 
    
 
@@ -142,59 +163,24 @@ activitiesFieldsetElement.addEventListener('change', (event) => {
    for (i=0; i < activitiesCheckBoxes.length; i++)
    {
       //skip over the node that was the target of the event, as we don't want to change it
-      if(!event.target.isSameNode(activitiesCheckBoxes[i]))
+      //also, test whether the option is a match for the time to the targeted option
+      if(!event.target.isSameNode(activitiesCheckBoxes[i]) && activitiesCheckBoxes[i].getAttribute("data-day-and-time") == selectedTime)
       {
-         //if it was already checked, then we're not going to change it
-         if (!activitiesCheckBoxes[i].checked)
-         {
-            //test whether the option is a match for the time to the targeted option
-            if (activitiesCheckBoxes[i].getAttribute("data-day-and-time") == selectedTime)
-            {
-               //if wasChecked is true, then time matches should be disabled; if wasChecked is false,
-               //then time matches should be enabled--this line accomplishes either option based on
-               //the value of wasChecked
-               activitiesCheckBoxes[i].disabled = wasChecked;
-
-               if (activitiesCheckBoxes[i].disabled)
+            
+               if (wasChecked)
                {
+                  activitiesCheckBoxes[i].disabled = true;
                   activitiesCheckBoxes[i].parentNode.style.color = "grey";
                }
                else
                {
+                  activitiesCheckBoxes[i].disabled = false;
                   activitiesCheckBoxes[i].parentNode.style.color = "initial";
                }
-
-            }
-         }
 
       }  
    }
 
-   
-
-
-
-
-// else //(was unchecked)
-// {
-
-//    for (i=0; i < activitiesCheckBoxes.length; i++)
-//    {
-//       if (activitiesCheckBoxes[i].checked)
-//       {
-//          totalCost += parseInt(activitiesCheckBoxes[i].getAttribute("data-cost"));
-
-//          if (activitiesCheckBoxes[i].getAttribute("data-day-and-time") == selectedTime)
-//          {
-//             activitiesCheckBoxes[i].disabled = "false";
-//          }
-
-//       }
-
-
-//    }
-
-// }
 
    if (totalCost > 0)
    {
@@ -206,5 +192,51 @@ activitiesFieldsetElement.addEventListener('change', (event) => {
       totalCostLabel.style.display = "none";
    }
    
+
+});
+
+
+
+paymentSelectElement.addEventListener('input', (event) => {
+
+switch (event.target.value)
+{
+   case "credit card":
+
+      creditCardDiv.style.display = "block";
+
+      payPalDiv.style.display = "none";
+
+      bitcoinDiv.style.display = "none";
+
+
+   break;
+
+   case "paypal":
+
+      payPalDiv.style.display = "block";   
+   
+      creditCardDiv.style.display = "none";
+
+      bitcoinDiv.style.display = "none";
+
+   break
+
+   case "bitcoin":
+
+      bitcoinDiv.style.display = "block";
+   
+      payPalDiv.style.display = "none";
+
+      creditCardDiv.style.display = "none";
+
+   break;
+
+   default:
+
+
+}
+
+
 
 });
