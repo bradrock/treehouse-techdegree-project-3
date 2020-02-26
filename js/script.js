@@ -114,28 +114,92 @@ designSelectElement.addEventListener('input', (event) => {
 });
 
 
+var selectedTime = "";
 
+var wasChecked = false;
 
 activitiesFieldsetElement.addEventListener('change', (event) => {
 
    const activitiesCheckBoxes = document.querySelectorAll(".activities input");
+
+   selectedTime = event.target.getAttribute("data-day-and-time");
+
+   wasChecked = event.target.checked;
+
    
-   //totalCost += parseInt(event.target.getAttribute("data-cost"));
 
-   totalCost = 0;
+   if (wasChecked)
+   {
+      totalCost += parseInt(event.target.getAttribute("data-cost"));
+   }
+   else
+   {
+      totalCost -= parseInt(event.target.getAttribute("data-cost"));
+   }
 
+
+   //loop through the checkboxes to enable/disable as necessary
    for (i=0; i < activitiesCheckBoxes.length; i++)
    {
-      if (activitiesCheckBoxes[i].checked)
+      //skip over the node that was the target of the event, as we don't want to change it
+      if(!event.target.isSameNode(activitiesCheckBoxes[i]))
       {
-         totalCost += parseInt(activitiesCheckBoxes[i].getAttribute("data-cost"));
-      }
+         //if it was already checked, then we're not going to change it
+         if (!activitiesCheckBoxes[i].checked)
+         {
+            //test whether the option is a match for the time to the targeted option
+            if (activitiesCheckBoxes[i].getAttribute("data-day-and-time") == selectedTime)
+            {
+               //if wasChecked is true, then time matches should be disabled; if wasChecked is false,
+               //then time matches should be enabled--this line accomplishes either option based on
+               //the value of wasChecked
+               activitiesCheckBoxes[i].disabled = wasChecked;
+
+               if (activitiesCheckBoxes[i].disabled)
+               {
+                  activitiesCheckBoxes[i].parentNode.style.color = "grey";
+               }
+               else
+               {
+                  activitiesCheckBoxes[i].parentNode.style.color = "initial";
+               }
+
+            }
+         }
+
+      }  
    }
+
+   
+
+
+
+
+// else //(was unchecked)
+// {
+
+//    for (i=0; i < activitiesCheckBoxes.length; i++)
+//    {
+//       if (activitiesCheckBoxes[i].checked)
+//       {
+//          totalCost += parseInt(activitiesCheckBoxes[i].getAttribute("data-cost"));
+
+//          if (activitiesCheckBoxes[i].getAttribute("data-day-and-time") == selectedTime)
+//          {
+//             activitiesCheckBoxes[i].disabled = "false";
+//          }
+
+//       }
+
+
+//    }
+
+// }
 
    if (totalCost > 0)
    {
       totalCostLabel.style.display = "block";
-      totalCostLabel.innerText = totalCost;
+      totalCostLabel.innerText = "Total: $" + totalCost;
    }
    else
    {
