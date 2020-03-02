@@ -4,13 +4,15 @@ FSJS project 3 - Interactive Form
 by Brad Rock
 ******************************************/
 
-//need to add something that disregards credit card validation if user switches payment methods
+//need to hide t-shirt color element until theme is selected and refactor
+//check on whether master error message should disappear when all other elements are fixed
+//should error messages disappear when corrected even if not focusout yet?
 
 
 //put name input field (the first field on the page) in focus state
 const nameInputElement = document.getElementById("name");
 const emailInputElement = document.getElementById("mail");
-const userFormElement = document.querySelector("form");
+const formElement = document.querySelector("form");
 const creditCardInputElement = document.getElementById("cc-num");
 const creditCardDivElement = document.getElementById("credit-card");
 const zipCodeInputElement = document.getElementById("zip");
@@ -167,9 +169,26 @@ masterValidationMessage.id = "master-validation-message";
 
 masterValidationMessage.innerText = "Insufficient information has been provided for submission. Please see the error messages above.";
 
+formElement.appendChild(masterValidationMessage);
+
+
+
+const paymentSelectionValidationMessage = document.createElement("LABEL");
+
+paymentSelectionValidationMessage.style.display = "none";
+
+paymentSelectionValidationMessage.style.color = "firebrick";
+
+paymentSelectionValidationMessage.innerText = "You must select a payment option.";
+
+formElement.insertBefore(paymentSelectionValidationMessage, button);
+
+
+
+
 //userFormElement.insertBefore(masterValidationMessage, button);
 
-userFormElement.appendChild(masterValidationMessage);
+
 
 //masterValidationMessage.style.marginBottom = "0em";
 
@@ -193,13 +212,19 @@ paymentSelectPaymentOption.hidden = true;
 
 
 
-const payPalDiv = document.querySelector("div.paypal");
+const payPalDivElement = document.querySelector("div.paypal");
 
-const bitcoinDiv = document.querySelector("div.bitcoin");
+const bitcoinDivElement = document.querySelector("div.bitcoin");
 
-payPalDiv.style.display = "none";
 
-bitcoinDiv.style.display = "none";
+//hide all elements until user picks a payment option
+payPalDivElement.style.display = "none";
+
+bitcoinDivElement.style.display = "none";
+
+creditCardDivElement.style.display = "none";
+
+
 
 
 designSelectElement.addEventListener('input', (event) => {
@@ -239,6 +264,7 @@ designSelectElement.addEventListener('input', (event) => {
    }
 
 });
+
 
 
 
@@ -301,44 +327,62 @@ activitiesFieldsetElement.addEventListener('change', (event) => {
 
 });
 
+//this is only activated when user hits submit button
+//the event listener for the activities fieldset disables the message if the user checks a box
+function activityValidationHandler()
+{
+
+   if (activityValidation())
+   {
+
+         activityValidationMessage.style.display = "none";
+   
+   }
+   else
+   {
+      activityValidationMessage.style.display = "block";
+   }
+}
 
 
 paymentSelectElement.addEventListener('input', (event) => {
 
-switch (event.target.value)
-{
-   case "credit card":
+   paymentSelectionValidationHandler()
 
-      creditCardDivElement.style.display = "block";
+   switch (event.target.value)
+   {
+      case "credit card":
 
-      payPalDiv.style.display = "none";
+         creditCardDivElement.style.display = "block";
 
-      bitcoinDiv.style.display = "none";
+         payPalDivElement.style.display = "none";
+
+         bitcoinDivElement.style.display = "none";
 
 
-   break;
+      break;
 
-   case "paypal":
+      case "paypal":
 
-      payPalDiv.style.display = "block";   
+         payPalDivElement.style.display = "block";   
    
-      creditCardDivElement.style.display = "none";
+         creditCardDivElement.style.display = "none";
 
-      bitcoinDiv.style.display = "none";
+         bitcoinDivElement.style.display = "none";
 
-   break
+      break
 
-   case "bitcoin":
+      case "bitcoin":
 
-      bitcoinDiv.style.display = "block";
+         bitcoinDivElement.style.display = "block";
    
-      payPalDiv.style.display = "none";
+         payPalDivElement.style.display = "none";
 
-      creditCardDivElement.style.display = "none";
+         creditCardDivElement.style.display = "none";
 
-   break;
+      break;
 
-   default:
+      
 
 
 }
@@ -348,14 +392,59 @@ switch (event.target.value)
 });
 
 
+function paymentSelectionValidationHandler()
+{
+   if (paymentSelectionValidation())
+   {
+      paymentSelectionValidationMessage.style.display = "none";
+   }
+   else
+   {
+      paymentSelectionValidationMessage.style.display = "block";
+   }
+
+}
 
 
-nameInputElement.addEventListener('focusout', (event) => {
 
-   nameValidationHandler();
+
+
+formElement.addEventListener('submit', (event) => {
+
+   
+   if (masterValidation() == false)
+   {
+
+      event.preventDefault();      
+      masterValidationMessage.style.display = "block";
+
+      nameValidationHandler();
+      emailValidationHandler();
+      activityValidationHandler();
+      paymentSelectionValidationHandler();
+      
+
+      
+
+
+      if (paymentSelectElement.value == 'credit card')
+      {
+         creditCardValidationHandler();
+         zipCodeValidationHandler();
+         cvvValidationHandler();
+      }
+
+      htmlElement.scrollIntoView(false);
+   }
+   
 
 
 });
+
+
+
+
+nameInputElement.addEventListener('focusout', nameValidationHandler);
 
 
 function nameValidationHandler()
@@ -375,48 +464,9 @@ function nameValidationHandler()
 
 }
 
-userFormElement.addEventListener('submit', (event) => {
-
-   
-   if (masterValidation() == false)
-   {
-
-      event.preventDefault();      
-      masterValidationMessage.style.display = "block";
-
-      if (nameValidation(nameInputElement.value) == false)
-      {
-         nameCannotBeBlankLabel.style.display = "block";
-      }
-
-      if (emailValidation(emailInputElement.value) > 1)
-      {
-         emailValidationMessage.style.display = "block";
-      }
 
 
-      if (activityValidation() == false)
-      {
-         activityValidationMessage.style.display = "block";
-      }
-
-
-      if (paymentSelectElement.value != 'credit-card' && creditCardValidation(creditCardInputElement.value))
-
-      htmlElement.scrollIntoView(false);
-   }
-   
-   
-   
-
-
-});
-
-emailInputElement.addEventListener('focusout', (event) => {
-
-   emailValidationHandler();
-
-});
+emailInputElement.addEventListener('focusout', emailValidationHandler);
 
 
 function emailValidationHandler()
@@ -461,55 +511,71 @@ function emailValidationHandler()
 }
 
 
-creditCardInputElement.addEventListener('focusout', (event) => {
+creditCardInputElement.addEventListener('focusout', creditCardValidationHandler);
 
+
+function creditCardValidationHandler()
+{
    if (creditCardValidation(creditCardInputElement.value))
    {
       creditCardValidationMessage.style.display = "none";
+
+      creditCardInputElement.style.borderColor = "initial";
+
    }
    else
    {
       creditCardValidationMessage.style.display = "block";
+
+      creditCardInputElement.style.borderColor = "firebrick";
    }
 
-});
+}
 
 
-zipCodeInputElement.addEventListener('focusout', (event) => {
 
+
+
+
+zipCodeInputElement.addEventListener('focusout', zipCodeValidationHandler);
+
+
+function zipCodeValidationHandler()
+{
    if (zipCodeValidation(zipCodeInputElement.value))
    {
       zipCodeValidationMessage.style.display = "none";
+
+      zipCodeInputElement.style.borderColor = "initial";
    }
    else
    {
       zipCodeValidationMessage.style.display = "block";
+
+      zipCodeInputElement.style.borderColor = "firebrick";
    }
+}
 
-});
 
 
-cvvInputElement.addEventListener('focusout', (event) => {
 
+cvvInputElement.addEventListener('focusout', cvvValidationHandler)
+
+function cvvValidationHandler()
+{
    if (cvvValidation(cvvInputElement.value))
    {
       cvvValidationMessage.style.display = "none";
+
+      cvvInputElement.style.borderColor = "initial";
    }
    else
    {
       cvvValidationMessage.style.display = "block";
+
+      cvvInputElement.style.borderColor = "firebrick";
    }
-
-});
-
-
-
-
-
-// function showCreditCardValidationMessage()
-// {
-//    creditCardValidationMessage.display = "block";
-// }
+}
 
 
 
@@ -517,7 +583,7 @@ cvvInputElement.addEventListener('focusout', (event) => {
 
 function masterValidation()
 {
-   if (nameValidation(nameInputElement.value) && emailValidation(emailInputElement.value) == 1 && activityValidation() && (paymentSelectElement.value != 'credit-card' || (creditCardValidation(creditCardInputElement.value) && zipCodeValidation(zipCodeInputElement.value) && cvvValidation(cvvInputElement.value))))
+   if (nameValidation(nameInputElement.value) && emailValidation(emailInputElement.value) == 3 && activityValidation() && paymentSelectionValidation() && ((paymentSelectElement.value != 'credit card') || (creditCardValidation(creditCardInputElement.value) && zipCodeValidation(zipCodeInputElement.value) && cvvValidation(cvvInputElement.value))))
    {
       return true;
    }
@@ -563,18 +629,20 @@ function emailValidation(email)
    }
 }
 
+
 function activityValidation()
 {
+
    const activitiesCheckBoxes = document.querySelectorAll(".activities input");
 
-   let isAtLeastOneActivityChecked = false;
+   
 
    for (i=0; i < activitiesCheckBoxes.length; i++)
    {
      
       if (activitiesCheckBoxes[i].checked)
       {
-         isAtLeastOneActivityChecked = true;
+         
          return true;
       }
 
@@ -582,6 +650,21 @@ function activityValidation()
 
    return false;
 }
+
+function paymentSelectionValidation()
+{
+
+   if (paymentSelectElement.value != "select method")
+   {
+      return true;
+   }
+   else
+   {
+      return false;
+   }
+
+}
+
 
 function creditCardValidation(cardNumber)
 {
