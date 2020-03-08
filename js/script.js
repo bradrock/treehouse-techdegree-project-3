@@ -4,51 +4,147 @@ FSJS project 3 - Interactive Form
 by Brad Rock
 ******************************************/
 
-//need to hide t-shirt color element until theme is selected and refactor
+//need to refactor
+//get rid of t-shirt "select an option" select option
 //check on whether master error message should disappear when all other elements are fixed
 //should error messages disappear when corrected even if not focusout yet?
 
 
-//put name input field (the first field on the page) in focus state
-const nameInputElement = document.getElementById("name");
-const emailInputElement = document.getElementById("mail");
-const formElement = document.querySelector("form");
-const creditCardInputElement = document.getElementById("cc-num");
-const creditCardDivElement = document.getElementById("credit-card");
-const zipCodeInputElement = document.getElementById("zip");
-const cvvInputElement = document.getElementById("cvv");
 
+/*Structure of file:
+DOM setup
+Event listeners
+Validation message handlers
+Validation functions
+*/
+
+
+
+// DOM SETUP************************************************************************************************
+// *********************************************************************************************************
+
+
+//get the form, html, and button elements
+const formElement = document.querySelector("form");
+const htmlElement = document.querySelector("html");
 const button = document.querySelector("button");
 
-const container = document.querySelector("div.container");
 
-const htmlElement = document.querySelector("html");
 
+
+//setup of DOM is based on order that the elements appear on the page
+
+
+
+//perform name input element-related setup****************************************************************
+
+//get the name input element
+const nameInputElement = document.getElementById("name");
+
+
+//put name input field (the first field on the page) in focus state (cursor automatically active there when
+//loading the page)
 nameInputElement.focus();
 
+//create the validation message that notifies the user that the name field cannot be empty
+const nameValidationMessage = document.createElement("LABEL");
 
-//hide the field where the user specifies their job role if they choose "other" (unhidden if they actually choose this option)
+nameValidationMessage.innerText = "Name field cannot be empty.";
+
+nameValidationMessage.style.display = "none";
+
+nameValidationMessage.style.color = "firebrick";
+
+//insert the validation message into the fieldset of which the name element is a child
+const basicInfoFieldset = nameInputElement.parentElement;
+
+basicInfoFieldset.insertBefore(nameValidationMessage, nameInputElement.nextSibling);
+
+// (end of name input element-related setup)*******************************************************************
+
+
+
+
+
+
+
+//perform email input element-related setup************************************************************
+
+
+const emailInputElement = document.getElementById("mail");
+
+
+//set up the validation message that notifies the user that the name field cannot be empty
+//content of the message depends on whether field is blank or contains an invalid email address when
+//user focuses out of it, so the inner text of the validation message element is set in the
+//event listener
+const emailValidationMessage = document.createElement("LABEL");
+
+emailValidationMessage.style.display = "none";
+
+emailValidationMessage.style.color = "firebrick";
+
+basicInfoFieldset.insertBefore(emailValidationMessage, emailInputElement.nextSibling);
+
+
+// (end of email input element-related setup)****************************************************************
+
+
+
+
+
+
+
+//perform "title" section-related setup"******************************************************************
+
+const titleSelectElement = document.getElementById("title");
+
 const otherTitleElement = document.getElementById("other-title");
+
+//hide the field where the user specifies their job role if they choose "other" (unhidden if they
+//actually choose this option as set in event listener for job role select element)
+
 otherTitleElement.style.display = "none";
 
-//selects first option element within the select element with the id "design"
+
+// (end of title section-related setup)****************************************************************
+
+
+
+
+
+//perform t-shirt design select element-related setup************************************************************
+
+//get the design select element
+const designSelectElement = document.getElementById("design");
+
+//get the first option element within the select element with the id "design"
 const designSelectOptionElement = document.querySelector("#design option");
 
-//sets the element to be hidden so that it cannot be selected by the user (only displayed before user makes a choice)
+//set the first option element to be hidden so that it cannot be selected by the user (only displayed before user makes a choice)
 designSelectOptionElement.hidden = true;
 
+// (end of t-shirt design select element-related setup)****************************************************************
 
+
+
+
+
+
+//perform t-shirt color select element-related setup******************************************************
 const colorSelectElement = document.getElementById("color");
 
+const colorDivElement = document.getElementById("colors-js-puns");
+
+//hide the color div element initially--is unhidden in event handler when user
+//selects a t-shirt design
+colorDivElement.style.display = "none";
 
 
-
-
+//don't think I need this anymore?
 const newColorOptionElement = document.createElement("OPTION");
 
 newColorOptionElement.innerText = "Please select a T-shirt theme";
-
-
 
 colorSelectElement.insertBefore(newColorOptionElement, colorSelectElement.childNodes[0]);
 
@@ -58,21 +154,22 @@ const colorSelectOptions = document.querySelectorAll("#color option");
 
 for (i = 0; i < colorSelectOptions.length; i++)
    {
-
       colorSelectOptions[i].hidden = true;
-
    }
+// **********************************
 
-const jsPunsOptions = document.querySelectorAll(".js-puns");
-
-const heartJsOptions = document.querySelectorAll(".heart-js");
+// (end of t-shirt color select element-related setup)*******************************************************************
 
 
-const designSelectElement = document.getElementById("design");
 
+
+
+
+//perform setup operations pertaining to the activities fieldset*********************************************
 
 const activitiesFieldsetElement = document.querySelector("fieldset.activities");
 
+//set up label to display total cost of selected activities
 let totalCost = 0;
 
 const totalCostLabel = document.createElement("LABEL");
@@ -84,32 +181,7 @@ activitiesFieldsetElement.appendChild(totalCostLabel);
 
 
 
-
-
-const nameCannotBeBlankLabel = document.createElement("LABEL");
-
-nameCannotBeBlankLabel.innerText = "Name field cannot be empty.";
-
-nameCannotBeBlankLabel.style.display = "none";
-
-nameCannotBeBlankLabel.style.color = "firebrick";
-
-const basicInfoFieldset = nameInputElement.parentElement;
-
-basicInfoFieldset.insertBefore(nameCannotBeBlankLabel, nameInputElement.nextSibling);
-
-
-
-
-const emailValidationMessage = document.createElement("LABEL");
-
-emailValidationMessage.style.display = "none";
-
-emailValidationMessage.style.color = "firebrick";
-
-basicInfoFieldset.insertBefore(emailValidationMessage, emailInputElement.nextSibling);
-
-
+//set up validation message for activity section
 
 const activityValidationMessage = document.createElement("LABEL");
 
@@ -123,6 +195,51 @@ activitiesFieldsetElement.appendChild(activityValidationMessage);
 
 
 
+// (end of activities fieldset-related setup)*******************************************************************
+
+
+
+
+
+
+
+//perform payment section-related setup**********************************************************************
+
+
+const creditCardInputElement = document.getElementById("cc-num");
+const creditCardDivElement = document.getElementById("credit-card");
+const zipCodeInputElement = document.getElementById("zip");
+const cvvInputElement = document.getElementById("cvv");
+const payPalDivElement = document.querySelector("div.paypal");
+const bitcoinDivElement = document.querySelector("div.bitcoin");
+
+
+//get the payment select element
+const paymentSelectElement = document.getElementById("payment");
+
+//get the option within the payment select element that says "Select Payment Method"
+const paymentSelectPaymentOption = document.querySelector("#payment option[value='select method']");
+
+//set this option to be hidden so that it does not show up as a selectable option for the user
+//(it only shows up initially as the default selection)
+paymentSelectPaymentOption.hidden = true;
+
+
+//create and insert payment validation message
+const paymentSelectionValidationMessage = document.createElement("LABEL");
+
+paymentSelectionValidationMessage.style.display = "none";
+
+paymentSelectionValidationMessage.style.color = "firebrick";
+
+paymentSelectionValidationMessage.innerText = "You must select a payment option.";
+
+formElement.insertBefore(paymentSelectionValidationMessage, button);
+
+
+
+
+//create and insert credit card number validation message
 const creditCardValidationMessage = document.createElement("LABEL");
 
 creditCardValidationMessage.style.display = "none";
@@ -134,7 +251,7 @@ creditCardValidationMessage.innerText = "You must enter a valid credit card numb
 creditCardDivElement.appendChild(creditCardValidationMessage);
 
 
-
+//create and insert zip code validation message
 const zipCodeValidationMessage = document.createElement("LABEL");
 
 zipCodeValidationMessage.style.display = "none";
@@ -146,7 +263,7 @@ zipCodeValidationMessage.innerText = "You must enter a valid zip code.";
 creditCardDivElement.appendChild(zipCodeValidationMessage);
 
 
-
+//create and insert cvv validation message
 const cvvValidationMessage = document.createElement("LABEL");
 
 cvvValidationMessage.style.display = "none";
@@ -158,6 +275,25 @@ cvvValidationMessage.innerText = "You must enter a valid CVV.";
 creditCardDivElement.appendChild(cvvValidationMessage);
 
 
+
+//hide all elements until user picks a payment option
+payPalDivElement.style.display = "none";
+
+bitcoinDivElement.style.display = "none";
+
+creditCardDivElement.style.display = "none";
+
+
+
+// (end of payment section-related setup)*******************************************************************
+
+
+
+
+
+
+
+//setup of the master validation message********************************************************************
 
 const masterValidationMessage = document.createElement("LABEL");
 
@@ -172,70 +308,50 @@ masterValidationMessage.innerText = "Insufficient information has been provided 
 formElement.appendChild(masterValidationMessage);
 
 
+// (end of setup for the master validation message)*********************************************************
 
-const paymentSelectionValidationMessage = document.createElement("LABEL");
 
-paymentSelectionValidationMessage.style.display = "none";
 
-paymentSelectionValidationMessage.style.color = "firebrick";
-
-paymentSelectionValidationMessage.innerText = "You must select a payment option.";
-
-formElement.insertBefore(paymentSelectionValidationMessage, button);
+// END OF DOM SETUP*****************************************************************************************
+// *********************************************************************************************************
 
 
 
 
-//userFormElement.insertBefore(masterValidationMessage, button);
+//EVENT LISTENERS******************************************************************************************
+//some of these simply call validation message handlers, while others perform other operations instead/as well
 
+nameInputElement.addEventListener('focusout', nameValidationMessageHandler);
+emailInputElement.addEventListener('focusout', emailValidationMessageHandler);
 
+titleSelectElement.addEventListener('input', (event) => {
 
-//masterValidationMessage.style.marginBottom = "0em";
+   if (event.target.value === 'other')
+   {
+      otherTitleElement.style.display = "block";
+   }
+   else
+   {
+      otherTitleElement.style.display = "none";
+   }
 
-
-
-
-
-
-
-const paymentSelectElement = document.getElementById("payment");
-
-const paymentSelectPaymentOption = document.querySelector("#payment option[value='select method']");
-
-// const paymentCreditCardOption = document.querySelector("#payment option[value='credit card']");
-
-// const paymentPaypalOption = document.querySelector("#payment option[value='paypal']");
-
-// const paymentBitcoinOption = document.querySelector("#payment option[value='bitcoin']");
-
-paymentSelectPaymentOption.hidden = true;
-
-
-
-const payPalDivElement = document.querySelector("div.paypal");
-
-const bitcoinDivElement = document.querySelector("div.bitcoin");
-
-
-//hide all elements until user picks a payment option
-payPalDivElement.style.display = "none";
-
-bitcoinDivElement.style.display = "none";
-
-creditCardDivElement.style.display = "none";
-
-
-
+});
 
 designSelectElement.addEventListener('input', (event) => {
+
+
+   //any input necessarily means choosing a design, so unhide the color div element upon design selection
+   colorDivElement.style.display = "block";
 
    if (event.target.value === "js puns")
    {
 
       colorSelectElement.selectedIndex = "1";
 
+      //may need to remove
       colorSelectElement[0].hidden = true;
 
+      //may need to revise
       for (i = 1; i < 4; i++)
       {
          colorSelectElement[i].hidden = false;
@@ -249,9 +365,12 @@ designSelectElement.addEventListener('input', (event) => {
    }
    else if (event.target.value === "heart js") 
    {
+      //check/may need to remove
+      colorSelectElement[0].hidden = true;
 
       colorSelectElement.selectedIndex = "4";
 
+      //may need to revise
       for (i = 0; i < 4; i++)
       {
          colorSelectElement[i].hidden = true;
@@ -268,7 +387,6 @@ designSelectElement.addEventListener('input', (event) => {
 
 
 
-
 activitiesFieldsetElement.addEventListener('change', (event) => {
 
    const activitiesCheckBoxes = document.querySelectorAll(".activities input");
@@ -276,8 +394,6 @@ activitiesFieldsetElement.addEventListener('change', (event) => {
    const selectedTime = event.target.getAttribute("data-day-and-time");
 
    const wasChecked = event.target.checked;
-
-   
 
    if (wasChecked)
    {
@@ -327,27 +443,14 @@ activitiesFieldsetElement.addEventListener('change', (event) => {
 
 });
 
-//this is only activated when user hits submit button
-//the event listener for the activities fieldset disables the message if the user checks a box
-function activityValidationHandler()
-{
 
-   if (activityValidation())
-   {
+creditCardInputElement.addEventListener('focusout', creditCardValidationMessageHandler);
 
-         activityValidationMessage.style.display = "none";
-   
-   }
-   else
-   {
-      activityValidationMessage.style.display = "block";
-   }
-}
 
 
 paymentSelectElement.addEventListener('input', (event) => {
 
-   paymentSelectionValidationHandler()
+   paymentSelectionValidationMessageHandler()
 
    switch (event.target.value)
    {
@@ -382,31 +485,14 @@ paymentSelectElement.addEventListener('input', (event) => {
 
       break;
 
-      
-
-
-}
-
-
+   }
 
 });
 
 
-function paymentSelectionValidationHandler()
-{
-   if (paymentSelectionValidation())
-   {
-      paymentSelectionValidationMessage.style.display = "none";
-   }
-   else
-   {
-      paymentSelectionValidationMessage.style.display = "block";
-   }
+zipCodeInputElement.addEventListener('focusout', zipCodeValidationMessageHandler);
 
-}
-
-
-
+cvvInputElement.addEventListener('focusout', cvvValidationMessageHandler)
 
 
 formElement.addEventListener('submit', (event) => {
@@ -418,10 +504,10 @@ formElement.addEventListener('submit', (event) => {
       event.preventDefault();      
       masterValidationMessage.style.display = "block";
 
-      nameValidationHandler();
-      emailValidationHandler();
-      activityValidationHandler();
-      paymentSelectionValidationHandler();
+      nameValidationMessageHandler();
+      emailValidationMessageHandler();
+      activityValidationMessageHandler();
+      paymentSelectionValidationMessageHandler();
       
 
       
@@ -429,9 +515,9 @@ formElement.addEventListener('submit', (event) => {
 
       if (paymentSelectElement.value == 'credit card')
       {
-         creditCardValidationHandler();
-         zipCodeValidationHandler();
-         cvvValidationHandler();
+         creditCardValidationMessageHandler();
+         zipCodeValidationMessageHandler();
+         cvvValidationMessageHandler();
       }
 
       htmlElement.scrollIntoView(false);
@@ -441,23 +527,27 @@ formElement.addEventListener('submit', (event) => {
 
 });
 
+// END OF EVENT LISTENERS******************************************************************************
+// ****************************************************************************************************
 
 
 
-nameInputElement.addEventListener('focusout', nameValidationHandler);
 
 
-function nameValidationHandler()
+//VALIDATION MESSAGE HANDLERS*****************************************************************************
+// *******************************************************************************************************
+
+function nameValidationMessageHandler()
 {
    if (!nameValidation(nameInputElement.value))
    {
-      nameCannotBeBlankLabel.style.display = "block";
+      nameValidationMessage.style.display = "block";
 
       nameInputElement.style.borderColor = "firebrick";
    }
    else
    {
-      nameCannotBeBlankLabel.style.display = "none";
+      nameValidationMessage.style.display = "none";
 
       nameInputElement.style.borderColor = "initial";
    }
@@ -466,10 +556,7 @@ function nameValidationHandler()
 
 
 
-emailInputElement.addEventListener('focusout', emailValidationHandler);
-
-
-function emailValidationHandler()
+function emailValidationMessageHandler()
 {
    switch (emailValidation(emailInputElement.value))
    {
@@ -511,10 +598,39 @@ function emailValidationHandler()
 }
 
 
-creditCardInputElement.addEventListener('focusout', creditCardValidationHandler);
+//activity validation message handler--this is only activated when user hits submit button
+//the event listener for the activities fieldset disables the message in the event that the user checks a box
+function activityValidationMessageHandler()
+{
+
+   if (activityValidation())
+   {
+
+         activityValidationMessage.style.display = "none";
+   
+   }
+   else
+   {
+      activityValidationMessage.style.display = "block";
+   }
+}
 
 
-function creditCardValidationHandler()
+function paymentSelectionValidationMessageHandler()
+{
+   if (paymentSelectionValidation())
+   {
+      paymentSelectionValidationMessage.style.display = "none";
+   }
+   else
+   {
+      paymentSelectionValidationMessage.style.display = "block";
+   }
+
+}
+
+
+function creditCardValidationMessageHandler()
 {
    if (creditCardValidation(creditCardInputElement.value))
    {
@@ -533,14 +649,7 @@ function creditCardValidationHandler()
 }
 
 
-
-
-
-
-zipCodeInputElement.addEventListener('focusout', zipCodeValidationHandler);
-
-
-function zipCodeValidationHandler()
+function zipCodeValidationMessageHandler()
 {
    if (zipCodeValidation(zipCodeInputElement.value))
    {
@@ -557,11 +666,7 @@ function zipCodeValidationHandler()
 }
 
 
-
-
-cvvInputElement.addEventListener('focusout', cvvValidationHandler)
-
-function cvvValidationHandler()
+function cvvValidationMessageHandler()
 {
    if (cvvValidation(cvvInputElement.value))
    {
@@ -578,22 +683,16 @@ function cvvValidationHandler()
 }
 
 
-
+// END OF VALIDATION MESSAGE HANDLERS***********************************************************************
+// *********************************************************************************************************
    
 
-function masterValidation()
-{
-   if (nameValidation(nameInputElement.value) && emailValidation(emailInputElement.value) == 3 && activityValidation() && paymentSelectionValidation() && ((paymentSelectElement.value != 'credit card') || (creditCardValidation(creditCardInputElement.value) && zipCodeValidation(zipCodeInputElement.value) && cvvValidation(cvvInputElement.value))))
-   {
-      return true;
-   }
-   else
-   {
-      return false;
-   }
-}
 
 
+
+
+// VALIDATION FUNCTIONS*************************************************************************************
+// *********************************************************************************************************
 
 function nameValidation(name)
 {
@@ -607,8 +706,6 @@ function nameValidation(name)
    }
 
 }
-
-
 
 
 function emailValidation(email)
@@ -709,3 +806,19 @@ function cvvValidation(cvv)
    }
 
 }
+
+
+function masterValidation()
+{
+   if (nameValidation(nameInputElement.value) && emailValidation(emailInputElement.value) == 3 && activityValidation() && paymentSelectionValidation() && ((paymentSelectElement.value != 'credit card') || (creditCardValidation(creditCardInputElement.value) && zipCodeValidation(zipCodeInputElement.value) && cvvValidation(cvvInputElement.value))))
+   {
+      return true;
+   }
+   else
+   {
+      return false;
+   }
+}
+
+//END OF VALIDATION FUNCTIONS********************************************************************************
+// **********************************************************************************************************
