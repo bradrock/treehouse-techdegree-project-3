@@ -214,21 +214,10 @@ const paymentSelectElement = document.getElementById("payment");
 const paymentSelectPaymentOption = document.querySelector("#payment option[value='select method']");
 
 //set this option to be hidden so that it does not show up as a selectable option for the user
-//(it only shows up initially as the default selection)
 paymentSelectPaymentOption.hidden = true;
 
-
-//create and insert payment validation error message
-const paymentSelectionErrorMessage = document.createElement("LABEL");
-
-paymentSelectionErrorMessage.style.display = "none";
-
-paymentSelectionErrorMessage.style.color = "firebrick";
-
-paymentSelectionErrorMessage.innerText = "You must select a payment option.";
-
-formElement.insertBefore(paymentSelectionErrorMessage, button);
-
+//set the credit card option to be selected as the default
+paymentSelectElement.selectedIndex = "1";
 
 
 
@@ -269,13 +258,12 @@ creditCardDivElement.appendChild(cvvErrorMessage);
 
 
 
-//hide all elements until user picks a payment option...when payment option is selected then
-//event listener causes the appropriate payment div to be visible
+//hide PayPal and Bitcoin div elements to start, as credit card is set as default payment option
 payPalDivElement.style.display = "none";
 
 bitcoinDivElement.style.display = "none";
 
-creditCardDivElement.style.display = "none";
+
 
 
 
@@ -458,9 +446,7 @@ activitiesFieldsetElement.addEventListener('change', (event) => {
 
 paymentSelectElement.addEventListener('input', (event) => {
 
-   //execute the handler function, which will hide the validation message given that the user has
-   //now necessarily selected a payment method when this event listener executes
-   paymentSelectionErrorMessageHandler()
+  
 
    //display the appropriate payment form div based on payment type user selects
    switch (event.target.value)
@@ -524,7 +510,6 @@ formElement.addEventListener('submit', (event) => {
       nameErrorMessageHandler();
       emailErrorMessageHandler();
       activityErrorMessageHandler();
-      paymentSelectionErrorMessageHandler();
       
 
       
@@ -634,19 +619,6 @@ function activityErrorMessageHandler()
    }
 }
 
-
-function paymentSelectionErrorMessageHandler()
-{
-   if (paymentSelectionValidation())
-   {
-      paymentSelectionErrorMessage.style.display = "none";
-   }
-   else
-   {
-      paymentSelectionErrorMessage.style.display = "block";
-   }
-
-}
 
 
 function creditCardErrorMessageHandler()
@@ -767,19 +739,7 @@ function activityValidation()
    return false;
 }
 
-function paymentSelectionValidation()
-{
 
-   if (paymentSelectElement.value != "select method")
-   {
-      return true;
-   }
-   else
-   {
-      return false;
-   }
-
-}
 
 
 function creditCardValidation(cardNumber)
@@ -829,7 +789,7 @@ function cvvValidation(cvv)
 
 function masterValidation()
 {
-   if (nameValidation(nameInputElement.value) && emailValidation(emailInputElement.value) == 3 && activityValidation() && paymentSelectionValidation() && ((paymentSelectElement.value != 'credit card') || (creditCardValidation(creditCardInputElement.value) && zipCodeValidation(zipCodeInputElement.value) && cvvValidation(cvvInputElement.value))))
+   if (nameValidation(nameInputElement.value) && emailValidation(emailInputElement.value) == 3 && activityValidation() && ((paymentSelectElement.value != 'credit card') || (creditCardValidation(creditCardInputElement.value) && zipCodeValidation(zipCodeInputElement.value) && cvvValidation(cvvInputElement.value))))
    {
       return true;
    }
